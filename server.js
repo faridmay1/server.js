@@ -1,11 +1,14 @@
-const express = require("express");
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
 const app = express();
-const port = process.env.PORT || 8080;
 
-app.get("/", (req, res) => {
-  res.send("✅ Proxy Server working via Koyeb");
-});
+app.use('/', createProxyMiddleware({
+  target: 'https://redirector.googlevideo.com',
+  changeOrigin: true
+}));
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
