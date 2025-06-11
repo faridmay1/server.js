@@ -1,23 +1,18 @@
+const http = require("http");
+const httpProxy = require("http-proxy");
 
-const express = require("express");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const proxy = httpProxy.createProxyServer({});
 
-const app = express();
+const server = http.createServer((req, res) => {
+  req.headers['host'] = 'www.google.com';
+  req.headers['user-agent'] = 'Googlebot/2.1 (+http://www.google.com/bot.html)';
+  proxy.web(req, res, {
+    target: "https://www.google.com",
+    changeOrigin: true,
+    secure: false
+  });
+});
 
-app.use("/", createProxyMiddleware({
-  target: "https://redirector.googlevideo.com",
-  changeOrigin: true,
-  secure: false,
-  ws: true,
-  pathRewrite: {
-    "^/": "/",
-  },
-  headers: {
-    Host: "redirector.googlevideo.com",
-    "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)"
-  }
-}));
-
-app.listen(8080, () => {
-  console.log("Proxy running on port 8080");
+server.listen(process.env.PORT || 8080, () => {
+  console.log("YT Tunnel proxy running");
 });
